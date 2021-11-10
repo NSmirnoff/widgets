@@ -1,0 +1,238 @@
+openapi: 3.0.3
+info:
+  title: Widgets internal API
+  contact:
+    name: Nikolay Smirnov
+    email: smirnovsg15@gmail.com
+  version: 0.0.1-SNAPSHOT
+
+tags:
+  - name: InternalWidget
+
+servers:
+  - url: localhost:8080
+
+paths:
+  /api/widgets:
+    post:
+      summary: Create widget
+      operationId: createWidget
+      tags:
+        - InternalWidget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWidgetDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+
+  /api/widgets/{widgetId}:
+    get:
+      summary: Get widget by id
+      operationId: getWidget
+      tags:
+        - InternalWidget
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123456
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+    put:
+      summary: Update widget by id
+      operationId: updateWidget
+      tags:
+        - InternalWidget
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123456
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWidgetDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetDto'
+    delete:
+      summary: Delete widget by id
+      operationId: deleteWidget
+      tags:
+        - InternalWidget
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123456
+      responses:
+        "204":
+          description: NO CONTENT
+
+  /api/widgets/list:
+    post:
+      summary: Get page with widgets by filter
+      operationId: listWidgets
+      tags:
+        - InternalWidget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetJournalRequestDto'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetJournalResponseDto'
+
+components:
+
+  schemas:
+    AbstractPageableRequestDto:
+      type: object
+      description: Структура запроса для журнала с пагинацией
+      properties:
+        page:
+          description: Запрашиваемая страница. Нумерация начинается с 0
+          type: integer
+          minimum: 0
+          default: 0
+        size:
+          description: Сущностей на странице (размер страницы)
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 10
+
+    AbstractPageableResponseDto:
+      type: object
+      description: >
+        Структура ответа для результата поиска с пагинацией,
+        включающая информацию об общем количестве найденных сущностей
+      properties:
+        page:
+          description: Запрашиваемая страница. Нумерация начинается с 0
+          type: integer
+          minimum: 0
+          example: 0
+        size:
+          description: Сущностей на странице (размер страницы)
+          type: integer
+          minimum: 1
+          example: 10
+        pages:
+          description: Всего найдено страниц
+          type: integer
+          minimum: 0
+          example: 50
+        total:
+          description: Всего найдено сущностей
+          type: integer
+          format: int64
+          minimum: 0
+          example: 500
+      required:
+        - page
+        - size
+        - pages
+        - total
+
+    CreateWidgetDto:
+      type: object
+      description: Dto для создания виджета
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+        z:
+          type: integer
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+      required:
+        - x
+        - y
+        - z
+        - width
+        - height
+
+    WidgetDto:
+      allOf:
+        - $ref: '#/components/schemas/CreateWidgetDto'
+        - type: object
+          description: Dto виджета
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 123456
+      required:
+        - id
+
+    WidgetJournalRequestDto:
+      allOf:
+        - $ref: '#/components/schemas/AbstractPageableRequestDto'
+        - type: object
+          description: Тело запроса списка виджетов с пагинацией
+          properties:
+            xMin:
+              type: integer
+              example: -5
+            xMax:
+              type: integer
+              example: 10
+            yMin:
+              type: integer
+              example: -3
+            yMax:
+              type: integer
+              example: 15
+      required:
+        - xMin
+        - xMax
+        - yMin
+        - yMax
+
+    WidgetJournalResponseDto:
+      allOf:
+        - $ref: '#/components/schemas/AbstractPageableResponseDto'
+        - type: object
+          description: Список виджетов с пагинацией
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/WidgetDto'
