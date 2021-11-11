@@ -10,6 +10,9 @@ import org.widget.exception.RequiredEntityNotFoundException;
 import org.widget.internal.models.CreateWidgetDto;
 import org.widget.repository.WidgetRepository;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,32 +31,34 @@ public class WidgetService {
             throw new BadRequestException("Widget with Z: " + dto.getZ() + " already exists");
         }
 
-        return update(new WidgetEntity(), dto);
+        return updateEntity(dto, null);
     }
 
     public WidgetEntity update(Long widgetId, CreateWidgetDto dto) {
-        var widget = findById(widgetId);
         if (repository.existsByZAndIdNot(dto.getZ(), widgetId)) {
             throw new BadRequestException("Widget with Z: " + dto.getZ() + " already exists");
         }
 
-        return update(widget, dto);
+        return updateEntity(dto, widgetId);
     }
 
     @Transactional
-    WidgetEntity update(WidgetEntity entity, CreateWidgetDto dto) {
-        entity.setX(dto.getX())
+    WidgetEntity updateEntity(@NotNull CreateWidgetDto dto, @Nullable Long widgetId) {
+        var widget = widgetId != null ? findById(widgetId) : new WidgetEntity();
+
+        widget.setX(dto.getX())
                 .setY(dto.getX())
                 .setZ(dto.getZ())
                 .setWidth(dto.getWidth())
                 .setHeight(dto.getHeight());
 
-        return repository.save(entity);
+        return repository.save(widget);
     }
 
     @Transactional
     public void delete(Long widgetId) {
-        var widget = findById(widgetId);
-        repository.delete(widget);
+        if (repository.existsById(widgetId)) {
+            repository.deleteById(widgetId);
+        }
     }
 }

@@ -105,14 +105,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WidgetJournalRequestDto'
+              $ref: '#/components/schemas/WidgetSearchRequestDto'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WidgetJournalResponseDto'
+                $ref: '#/components/schemas/WidgetSearchResponseDto'
 
 components:
 
@@ -122,10 +122,10 @@ components:
       description: Структура запроса для журнала с пагинацией
       properties:
         page:
-          description: Запрашиваемая страница. Нумерация начинается с 0
+          description: Запрашиваемая страница. Нумерация начинается с 1
           type: integer
-          minimum: 0
-          default: 0
+          minimum: 1
+          default: 1
         size:
           description: Сущностей на странице (размер страницы)
           type: integer
@@ -140,10 +140,10 @@ components:
         включающая информацию об общем количестве найденных сущностей
       properties:
         page:
-          description: Запрашиваемая страница. Нумерация начинается с 0
+          description: Запрашиваемая страница. Нумерация начинается с 1
           type: integer
-          minimum: 0
-          example: 0
+          minimum: 1
+          example: 1
         size:
           description: Сущностей на странице (размер страницы)
           type: integer
@@ -202,7 +202,7 @@ components:
       required:
         - id
 
-    WidgetJournalRequestDto:
+    WidgetSearchRequestDto:
       allOf:
         - $ref: '#/components/schemas/AbstractPageableRequestDto'
         - type: object
@@ -226,7 +226,7 @@ components:
         - yMin
         - yMax
 
-    WidgetJournalResponseDto:
+    WidgetSearchResponseDto:
       allOf:
         - $ref: '#/components/schemas/AbstractPageableResponseDto'
         - type: object

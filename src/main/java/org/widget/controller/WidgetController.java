@@ -1,23 +1,24 @@
 package org.widget.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.widget.exception.BadRequestException;
 import org.widget.internal.controllers.InternalWidgetApiDelegate;
 import org.widget.internal.models.CreateWidgetDto;
 import org.widget.internal.models.WidgetDto;
-import org.widget.internal.models.WidgetJournalRequestDto;
-import org.widget.internal.models.WidgetJournalResponseDto;
+import org.widget.internal.models.WidgetSearchRequestDto;
+import org.widget.internal.models.WidgetSearchResponseDto;
 import org.widget.mapper.WidgetMapper;
+import org.widget.service.WidgetSearchService;
 import org.widget.service.WidgetService;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class WidgetController implements InternalWidgetApiDelegate {
 
     private final WidgetService service;
+    private final WidgetSearchService searchService;
     private final WidgetMapper mapper;
 
     @Override
@@ -45,7 +46,24 @@ public class WidgetController implements InternalWidgetApiDelegate {
     }
 
     @Override
-    public ResponseEntity<WidgetJournalResponseDto> listWidgets(WidgetJournalRequestDto filter) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<WidgetSearchResponseDto> listWidgets(WidgetSearchRequestDto filter) {
+        if (filter.getxMin().equals(filter.getxMax()) || filter.getyMin().equals(filter.getyMax())) {
+            throw new BadRequestException("Width or height of searching window is 0");
+        }
+
+        if (filter.getxMin() > filter.getxMax()) {
+            filter.setxMin(filter.getxMin() ^ filter.getxMax());
+            filter.setxMax(filter.getxMax() ^ filter.getxMin());
+            filter.setxMin(filter.getxMin() ^ filter.getxMax());
+        }
+
+        if (filter.getyMin() > filter.getyMax()) {
+            filter.setyMin(filter.getyMin() ^ filter.getyMax());
+            filter.setyMax(filter.getyMax() ^ filter.getyMin());
+            filter.setyMin(filter.getyMin() ^ filter.getyMax());
+        }
+
+        var page = searchService.search(filter);
+        return ResponseEntity.ok(mapper.toDto(page));
     }
 }

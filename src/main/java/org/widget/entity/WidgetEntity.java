@@ -21,7 +21,7 @@ public class WidgetEntity {
     Long id;
 
     @Column(nullable = false)
-    Integer     x;
+    Integer x;
 
     @Column(nullable = false)
     Integer y;
