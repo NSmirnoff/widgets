@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 import org.widget.entity.WidgetEntity;
 import org.widget.internal.models.WidgetSearchRequestDto;
 import org.widget.repository.WidgetRepository;
-import org.widget.repository.WidgetSpecifications;
-
-import static org.springframework.data.jpa.domain.Specification.where;
 
 @Slf4j
 @Service
@@ -24,9 +21,12 @@ public class WidgetSearchService {
         var sort = Sort.by(Sort.Direction.ASC, "z");
         var pageable = PageRequest.of(filter.getPage() - 1, filter.getSize(), sort);
 
-        var specs = where(WidgetSpecifications.withWindowSize(filter))
-                .and(WidgetSpecifications.withCenterInWindow(filter));
-
-        return repository.findAll(specs, pageable);
+        return repository.findByExpression(
+                filter.getxMin().doubleValue(),
+                filter.getxMax().doubleValue(),
+                filter.getyMin().doubleValue(),
+                filter.getyMax().doubleValue(),
+                pageable
+        );
     }
 }

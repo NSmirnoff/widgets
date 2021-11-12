@@ -37,10 +37,6 @@ public class WidgetEntity {
     @Column(nullable = false)
     Integer height;
 
-    @Version
-    @Column(nullable = false)
-    Integer version = 1;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

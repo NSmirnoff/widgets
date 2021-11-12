@@ -1,4 +1,4 @@
-create table if not exists widgets
+create table widgets
 (
     id     bigint generated always as identity primary key,
     x      integer not null,
@@ -6,6 +6,5 @@ create table if not exists widgets
     z      integer not null unique,
     width  integer not null,
     height integer not null,
-    version integer not null default 1,
     constraint positive_size check (width > 0 and height > 0)
 );
