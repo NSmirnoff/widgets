@@ -17,7 +17,8 @@ public interface WidgetRepository extends
     boolean existsByZAndIdNot(Integer z, Long id);
 
     @Query("select w from WidgetEntity w where " +
-            ":x0 <= (w.x - (w.width / 2.0)) and :x1 >= (w.x + (w.width / 2.0)) " +
+            "w.x between :x0 and :x1 and w.y between :y0 and :y1 " +
+            "and :x0 <= (w.x - (w.width / 2.0)) and :x1 >= (w.x + (w.width / 2.0)) " +
             "and :y0 <= (w.y - (w.height / 2.0)) and :y1 >= (w.y + (w.height / 2.0))")
     Page<WidgetEntity> findByExpression(
             @Param("x0") Double x0,

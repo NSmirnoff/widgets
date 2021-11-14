@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.widget.exception.BadRequestException;
+import org.widget.exception.RequiredEntityNotFoundException;
 import org.widget.internal.controllers.InternalWidgetApiDelegate;
 import org.widget.internal.models.CreateWidgetDto;
 import org.widget.internal.models.WidgetDto;
@@ -29,8 +30,12 @@ public class WidgetController implements InternalWidgetApiDelegate {
 
     @Override
     public ResponseEntity<WidgetDto> getWidget(Long widgetId) {
-        var widget = service.findById(widgetId);
-        return ResponseEntity.ok(mapper.toDto(widget));
+        try {
+            var widget = service.findById(widgetId);
+            return ResponseEntity.ok(mapper.toDto(widget));
+        } catch (RequiredEntityNotFoundException ignore) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Override

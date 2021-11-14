@@ -10,8 +10,8 @@ import org.widget.exception.RequiredEntityNotFoundException;
 import org.widget.internal.models.CreateWidgetDto;
 import org.widget.repository.WidgetRepository;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -21,33 +21,38 @@ public class WidgetService {
     private final WidgetRepository repository;
 
     @Transactional(readOnly = true)
-    public WidgetEntity findById(Long widgetId) {
+    public WidgetEntity findById(@NotNull Long widgetId) {
+        Objects.requireNonNull(widgetId);
+
         return repository.findById(widgetId)
                 .orElseThrow(() -> new RequiredEntityNotFoundException("Widget " + widgetId + " not found"));
     }
 
     public WidgetEntity create(CreateWidgetDto dto) {
+        Objects.requireNonNull(dto.getZ());
+
         if (repository.existsByZ(dto.getZ())) {
             throw new BadRequestException("Widget with Z: " + dto.getZ() + " already exists");
         }
 
-        return updateEntity(dto, null);
+        return updateEntity(dto, new WidgetEntity());
     }
 
-    public WidgetEntity update(Long widgetId, CreateWidgetDto dto) {
+    public WidgetEntity update(@NotNull Long widgetId, CreateWidgetDto dto) {
+        Objects.requireNonNull(widgetId);
+        Objects.requireNonNull(dto.getZ());
+
         if (repository.existsByZAndIdNot(dto.getZ(), widgetId)) {
             throw new BadRequestException("Widget with Z: " + dto.getZ() + " already exists");
         }
 
-        return updateEntity(dto, widgetId);
+        return updateEntity(dto, findById(widgetId));
     }
 
     @Transactional
-    WidgetEntity updateEntity(@NotNull CreateWidgetDto dto, @Nullable Long widgetId) {
-        var widget = widgetId != null ? findById(widgetId) : new WidgetEntity();
-
+    WidgetEntity updateEntity(@NotNull CreateWidgetDto dto, @NotNull WidgetEntity widget) {
         widget.setX(dto.getX())
-                .setY(dto.getX())
+                .setY(dto.getY())
                 .setZ(dto.getZ())
                 .setWidth(dto.getWidth())
                 .setHeight(dto.getHeight());

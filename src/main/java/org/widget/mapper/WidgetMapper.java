@@ -1,9 +1,11 @@
 package org.widget.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.springframework.data.domain.Page;
 import org.widget.entity.WidgetEntity;
+import org.widget.internal.models.CreateWidgetDto;
 import org.widget.internal.models.WidgetDto;
 import org.widget.internal.models.WidgetSearchResponseDto;
 
@@ -15,6 +17,9 @@ import java.util.stream.Collectors;
         componentModel = "spring"
 )
 public interface WidgetMapper {
+
+    @Mapping(target = "id", ignore = true)
+    WidgetEntity toEntity(@NotNull CreateWidgetDto dto);
 
     WidgetDto toDto(@NotNull WidgetEntity widget);
 
