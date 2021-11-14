@@ -37,10 +37,10 @@ public class EntityCreator {
     public WidgetSearchRequestDto getSearchDto() {
         if (this.searchDto == null) {
             this.searchDto = new WidgetSearchRequestDto()
-                    .xMin(RandomUtils.nextInt())
-                    .xMax(RandomUtils.nextInt())
-                    .yMin(RandomUtils.nextInt())
-                    .yMax(RandomUtils.nextInt());
+                    .xMin(Integer.MIN_VALUE)
+                    .xMax(Integer.MAX_VALUE)
+                    .yMin(Integer.MIN_VALUE)
+                    .yMax(Integer.MAX_VALUE);
         }
 
         return this.searchDto;

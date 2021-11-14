@@ -66,6 +66,12 @@ class WidgetControllerTest {
 
     @Test
     void listWidgets() {
+        var searchDto = entityCreator.getSearchDto();
+        var response = controller.listWidgets(searchDto);
 
+        assertNotNull(response.getBody());
+        var page = response.getBody();
+
+        assertTrue(page.getContent().size() > 0);
     }
 }
