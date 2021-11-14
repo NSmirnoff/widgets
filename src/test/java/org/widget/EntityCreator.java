@@ -9,6 +9,7 @@ import org.widget.internal.models.CreateWidgetDto;
 import org.widget.internal.models.WidgetSearchRequestDto;
 import org.widget.repository.WidgetRepository;
 
+import java.time.LocalDateTime;
 import java.util.Iterator;
 
 @Component
@@ -19,7 +20,6 @@ public class EntityCreator {
 
     private CreateWidgetDto dto;
     private WidgetSearchRequestDto searchDto;
-    private WidgetEntity entity;
 
     public CreateWidgetDto getTestDto() {
         if (this.dto == null) {
@@ -34,7 +34,7 @@ public class EntityCreator {
         return this.dto;
     }
 
-    public WidgetSearchRequestDto getSearchDto() {
+    public WidgetSearchRequestDto getFilter() {
         if (this.searchDto == null) {
             this.searchDto = new WidgetSearchRequestDto()
                     .xMin(Integer.MIN_VALUE)
@@ -47,17 +47,18 @@ public class EntityCreator {
     }
 
     public WidgetEntity getTestEntity() {
-        this.entity = findFirst(repository);
-        if (this.entity == null) {
-            this.entity = repository.save(new WidgetEntity()
+        var entity = findFirst(repository);
+        if (entity == null) {
+            entity = repository.save(new WidgetEntity()
                     .setWidth(RandomUtils.nextInt(0, Integer.MAX_VALUE))
                     .setHeight(RandomUtils.nextInt(0, Integer.MAX_VALUE))
+                    .setLastUpdated(LocalDateTime.now())
                     .setX(RandomUtils.nextInt())
                     .setY(RandomUtils.nextInt())
                     .setZ(RandomUtils.nextInt()));
         }
 
-        return this.entity;
+        return entity;
     }
 
     private static <T> T findFirst(CrudRepository<T, Long> repository) {

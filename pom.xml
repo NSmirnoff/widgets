@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <testcontainers.version>1.16.0</testcontainers.version>
+        <start-class>org.widget.WidgetApplication</start-class>
         <org.projectlombok.version>1.18.22</org.projectlombok.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <org.openapitools.version>5.3.0</org.openapitools.version>
@@ -181,6 +181,9 @@
                             <apiPackage>org.widget.internal.controllers</apiPackage>
                             <modelPackage>org.widget.internal.models</modelPackage>
                             <generateAliasAsModel>true</generateAliasAsModel>
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=java.time.LocalDateTime</typeMapping>
+                            </typeMappings>
                             <configOptions>
                                 <interfaceOnly>false</interfaceOnly>
                                 <delegatePattern>true</delegatePattern>

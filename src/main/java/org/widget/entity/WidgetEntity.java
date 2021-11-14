@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import javax.validation.constraints.Positive;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -36,6 +37,9 @@ public class WidgetEntity {
     @Positive
     @Column(nullable = false)
     Integer height;
+
+    @Column(nullable = false)
+    LocalDateTime lastUpdated;
 
     @Override
     public boolean equals(Object o) {

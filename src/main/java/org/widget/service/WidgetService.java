@@ -11,6 +11,7 @@ import org.widget.internal.models.CreateWidgetDto;
 import org.widget.repository.WidgetRepository;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Slf4j
@@ -55,7 +56,8 @@ public class WidgetService {
                 .setY(dto.getY())
                 .setZ(dto.getZ())
                 .setWidth(dto.getWidth())
-                .setHeight(dto.getHeight());
+                .setHeight(dto.getHeight())
+                .setLastUpdated(LocalDateTime.now());
 
         return repository.save(widget);
     }

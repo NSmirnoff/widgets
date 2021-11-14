@@ -14,6 +14,8 @@ import org.widget.mapper.WidgetMapper;
 import org.widget.service.WidgetSearchService;
 import org.widget.service.WidgetService;
 
+import javax.validation.constraints.NotNull;
+
 @RestController
 @RequiredArgsConstructor
 public class WidgetController implements InternalWidgetApiDelegate {
@@ -23,13 +25,13 @@ public class WidgetController implements InternalWidgetApiDelegate {
     private final WidgetMapper mapper;
 
     @Override
-    public ResponseEntity<WidgetDto> createWidget(CreateWidgetDto dto) {
+    public ResponseEntity<WidgetDto> createWidget(@NotNull CreateWidgetDto dto) {
         var widget = service.create(dto);
         return ResponseEntity.ok(mapper.toDto(widget));
     }
 
     @Override
-    public ResponseEntity<WidgetDto> getWidget(Long widgetId) {
+    public ResponseEntity<WidgetDto> getWidget(@NotNull Long widgetId) {
         try {
             var widget = service.findById(widgetId);
             return ResponseEntity.ok(mapper.toDto(widget));
@@ -39,33 +41,34 @@ public class WidgetController implements InternalWidgetApiDelegate {
     }
 
     @Override
-    public ResponseEntity<WidgetDto> updateWidget(Long widgetId, CreateWidgetDto dto) {
+    public ResponseEntity<WidgetDto> updateWidget(@NotNull Long widgetId, @NotNull CreateWidgetDto dto) {
         var widget = service.update(widgetId, dto);
         return ResponseEntity.ok(mapper.toDto(widget));
     }
 
     @Override
-    public ResponseEntity<Void> deleteWidget(Long widgetId) {
+    public ResponseEntity<Void> deleteWidget(@NotNull Long widgetId) {
         service.delete(widgetId);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Search widgets in area (xMin;yMin) - (xMax;yMax)
+     * @param filter - xMin, xMax, yMin, yMax, page and size of page
+     * @return Custom page dto with widgets sort by Z
+     */
     @Override
-    public ResponseEntity<WidgetSearchResponseDto> listWidgets(WidgetSearchRequestDto filter) {
+    public ResponseEntity<WidgetSearchResponseDto> listWidgets(@NotNull WidgetSearchRequestDto filter) {
         if (filter.getxMin().equals(filter.getxMax()) || filter.getyMin().equals(filter.getyMax())) {
             throw new BadRequestException("Width or height of searching window is 0");
         }
 
         if (filter.getxMin() > filter.getxMax()) {
-            filter.setxMin(filter.getxMin() ^ filter.getxMax());
-            filter.setxMax(filter.getxMax() ^ filter.getxMin());
-            filter.setxMin(filter.getxMin() ^ filter.getxMax());
+            throw new BadRequestException("X0 more than X1");
         }
 
         if (filter.getyMin() > filter.getyMax()) {
-            filter.setyMin(filter.getyMin() ^ filter.getyMax());
-            filter.setyMax(filter.getyMax() ^ filter.getyMin());
-            filter.setyMin(filter.getyMin() ^ filter.getyMax());
+            throw new BadRequestException("Y0 more than Y1");
         }
 
         var page = searchService.search(filter);

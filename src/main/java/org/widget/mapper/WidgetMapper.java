@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public interface WidgetMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "lastUpdated", ignore = true)
     WidgetEntity toEntity(@NotNull CreateWidgetDto dto);
 
     WidgetDto toDto(@NotNull WidgetEntity widget);

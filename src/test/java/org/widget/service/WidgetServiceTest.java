@@ -67,6 +67,7 @@ class WidgetServiceTest {
         dto.setZ(null);
 
         assertThrows(NullPointerException.class, () -> widgetService.create(dto));
+        dto.setZ(RandomUtils.nextInt());
     }
 
     @Test
@@ -123,6 +124,7 @@ class WidgetServiceTest {
         dto.setZ(null);
 
         assertThrows(NullPointerException.class, () -> widgetService.update(id, dto));
+        dto.setZ(RandomUtils.nextInt());
     }
 
     @Test

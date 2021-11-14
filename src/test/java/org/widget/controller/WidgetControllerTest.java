@@ -1,16 +1,22 @@
 package org.widget.controller;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.widget.EntityCreator;
-import org.widget.service.WidgetService;
+import org.widget.entity.WidgetEntity;
+import org.widget.exception.BadRequestException;
+import org.widget.service.WidgetSearchService;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class WidgetControllerTest {
+public class WidgetControllerTest {
 
     @Autowired
     private WidgetController controller;
@@ -18,60 +24,54 @@ class WidgetControllerTest {
     @Autowired
     private EntityCreator entityCreator;
 
-    @Test
-    void createWidget() {
-        var dto = entityCreator.getTestDto();
-        var entityDto = controller.createWidget(dto);
+    @MockBean
+    private WidgetSearchService service;
 
-        assertNotNull(entityDto.getBody());
-        assertEquals(dto.getX(), entityDto.getBody().getX());
-        assertEquals(dto.getY(), entityDto.getBody().getY());
-        assertEquals(dto.getZ(), entityDto.getBody().getZ());
-        assertEquals(dto.getWidth(), entityDto.getBody().getWidth());
-        assertEquals(dto.getHeight(), entityDto.getBody().getHeight());
+    @Test
+    void equalXMinAndMax() {
+        var filter = entityCreator.getFilter();
+        filter.setxMin(filter.getxMax());
+
+        Mockito.when(service.search(filter)).thenReturn(new PageImpl<>(List.of(new WidgetEntity())));
+        assertThrows(BadRequestException.class, () -> controller.listWidgets(filter));
+
+        filter.setxMin(Integer.MIN_VALUE);
     }
 
     @Test
-    void getWidget() {
-        var entity = entityCreator.getTestEntity();
-        var entityDto = controller.getWidget(entity.getId());
+    void wrongFilterX() {
+        var filter = entityCreator.getFilter();
+        filter.setxMin(Integer.MAX_VALUE);
+        filter.setxMax(Integer.MIN_VALUE);
 
-        assertNotNull(entityDto.getBody());
-        assertEquals(entity.getId(), entityDto.getBody().getId());
+        Mockito.when(service.search(filter)).thenReturn(new PageImpl<>(List.of(new WidgetEntity())));
+        assertThrows(BadRequestException.class, () -> controller.listWidgets(filter));
+
+        filter.setxMin(Integer.MIN_VALUE);
+        filter.setxMax(Integer.MAX_VALUE);
     }
 
     @Test
-    void updateWidget() {
-        var dto = entityCreator.getTestDto();
-        var entity = entityCreator.getTestEntity();
+    void equalYMinAndMax() {
+        var filter = entityCreator.getFilter();
+        filter.setyMin(filter.getyMax());
 
-        var entityDto = controller.updateWidget(entity.getId(), dto);
+        Mockito.when(service.search(filter)).thenReturn(new PageImpl<>(List.of(new WidgetEntity())));
+        assertThrows(BadRequestException.class, () -> controller.listWidgets(filter));
 
-        assertNotNull(entityDto.getBody());
-        assertEquals(dto.getX(), entityDto.getBody().getX());
-        assertEquals(dto.getY(), entityDto.getBody().getY());
-        assertEquals(dto.getZ(), entityDto.getBody().getZ());
-        assertEquals(dto.getWidth(), entityDto.getBody().getWidth());
-        assertEquals(dto.getHeight(), entityDto.getBody().getHeight());
+        filter.setyMin(Integer.MIN_VALUE);
     }
 
     @Test
-    void deleteWidget() {
-        var entity = entityCreator.getTestEntity();
-        var id = entity.getId();
-        controller.deleteWidget(id);
+    void wrongFilterY() {
+        var filter = entityCreator.getFilter();
+        filter.setyMin(Integer.MAX_VALUE);
+        filter.setyMax(Integer.MIN_VALUE);
 
-        assertEquals(controller.getWidget(id).getStatusCode(), HttpStatus.NOT_FOUND);
-    }
+        Mockito.when(service.search(filter)).thenReturn(new PageImpl<>(List.of(new WidgetEntity())));
+        assertThrows(BadRequestException.class, () -> controller.listWidgets(filter));
 
-    @Test
-    void listWidgets() {
-        var searchDto = entityCreator.getSearchDto();
-        var response = controller.listWidgets(searchDto);
-
-        assertNotNull(response.getBody());
-        var page = response.getBody();
-
-        assertTrue(page.getContent().size() > 0);
+        filter.setyMin(Integer.MIN_VALUE);
+        filter.setyMax(Integer.MAX_VALUE);
     }
 }
