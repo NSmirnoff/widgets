@@ -67,6 +67,7 @@ class WidgetControllerIntegrationTest {
 
     @Test
     void listWidgets() {
+        entityCreator.getTestEntity();
         var filter = entityCreator.getFilter();
         var response = controller.listWidgets(filter);
 

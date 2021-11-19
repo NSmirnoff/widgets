@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.widget.entity.WidgetEntity;
@@ -66,7 +67,8 @@ public class WidgetService {
 
     public Page<WidgetEntity> search(@NotNull WidgetSearchRequestDto filter) {
         Objects.requireNonNull(filter);
-        var pageable = PageRequest.of(filter.getPage() - 1, filter.getSize());
+        var sort = Sort.by(Sort.Direction.ASC, "z");
+        var pageable = PageRequest.of(filter.getPage() - 1, filter.getSize(), sort);
         if (filter.getxMin() != null && filter.getxMax() != null &&
                 filter.getyMin() != null && filter.getyMax() != null) {
             return repository.findByFilter(filter, pageable);

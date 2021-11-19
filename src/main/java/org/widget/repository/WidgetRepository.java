@@ -5,10 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.widget.entity.WidgetEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 @Profile("database")
@@ -35,4 +37,8 @@ public interface WidgetRepository extends
             @Param("y1") Double y1,
             Pageable pageable
     );
+
+    @Modifying
+    @Query("update WidgetEntity w set w.z = w.z + 1 where w in (:list)")
+    void shirtZIndices(@Param("list") List<WidgetEntity> w);
 }

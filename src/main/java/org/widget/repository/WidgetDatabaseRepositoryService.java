@@ -11,9 +11,7 @@ import org.widget.entity.WidgetEntity;
 import org.widget.internal.models.WidgetSearchRequestDto;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Profile("database")
 @Slf4j
@@ -61,12 +59,16 @@ public class WidgetDatabaseRepositoryService implements WidgetRepositoryService 
                 repository.findByZAndIdNot(newZ, widgetId) :
                 repository.findByZ(newZ);
 
+        List<WidgetEntity> existed = new ArrayList<>();
+
         while (sameZWidgetOptional.isPresent()) {
             var widget = sameZWidgetOptional.get();
-            widget.setZ(widget.getZ() + 1);
-            repository.save(widget);
+            existed.add(sameZWidgetOptional.get());
+            sameZWidgetOptional = repository.findByZ(widget.getZ() + 1);
+        }
 
-            sameZWidgetOptional = repository.findByZAndIdNot(widget.getZ(), widget.getId());
+        if (!existed.isEmpty()) {
+            repository.shirtZIndices(existed);
         }
     }
 
