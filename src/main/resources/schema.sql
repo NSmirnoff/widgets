@@ -1,4 +1,4 @@
-create table widgets
+create table if not exists widgets
 (
     id           bigint generated always as identity primary key,
     x            integer   not null,

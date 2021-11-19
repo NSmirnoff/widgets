@@ -2,13 +2,15 @@ package org.widget.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.widget.entity.WidgetEntity;
-import org.widget.exception.BadRequestException;
 import org.widget.exception.RequiredEntityNotFoundException;
 import org.widget.internal.models.CreateWidgetDto;
-import org.widget.repository.WidgetRepository;
+import org.widget.internal.models.WidgetSearchRequestDto;
+import org.widget.repository.WidgetRepositoryService;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -19,39 +21,33 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class WidgetService {
 
-    private final WidgetRepository repository;
+    private final WidgetRepositoryService repository;
 
-    @Transactional(readOnly = true)
     public WidgetEntity findById(@NotNull Long widgetId) {
         Objects.requireNonNull(widgetId);
-
         return repository.findById(widgetId)
                 .orElseThrow(() -> new RequiredEntityNotFoundException("Widget " + widgetId + " not found"));
     }
 
-    public WidgetEntity create(CreateWidgetDto dto) {
-        Objects.requireNonNull(dto.getZ());
-
-        if (repository.existsByZ(dto.getZ())) {
-            throw new BadRequestException("Widget with Z: " + dto.getZ() + " already exists");
-        }
-
+    public WidgetEntity create(@NotNull CreateWidgetDto dto) {
+        Objects.requireNonNull(dto);
         return updateEntity(dto, new WidgetEntity());
     }
 
-    public WidgetEntity update(@NotNull Long widgetId, CreateWidgetDto dto) {
+    @Transactional
+    public WidgetEntity update(@NotNull Long widgetId, @NotNull CreateWidgetDto dto) {
         Objects.requireNonNull(widgetId);
-        Objects.requireNonNull(dto.getZ());
-
-        if (repository.existsByZAndIdNot(dto.getZ(), widgetId)) {
-            throw new BadRequestException("Widget with Z: " + dto.getZ() + " already exists");
-        }
+        Objects.requireNonNull(dto);
 
         return updateEntity(dto, findById(widgetId));
     }
 
-    @Transactional
-    WidgetEntity updateEntity(@NotNull CreateWidgetDto dto, @NotNull WidgetEntity widget) {
+    private WidgetEntity updateEntity(@NotNull CreateWidgetDto dto, @NotNull WidgetEntity widget) {
+        Objects.requireNonNull(dto.getX());
+        Objects.requireNonNull(dto.getY());
+        Objects.requireNonNull(dto.getWidth());
+        Objects.requireNonNull(dto.getHeight());
+
         widget.setX(dto.getX())
                 .setY(dto.getY())
                 .setZ(dto.getZ())
@@ -63,9 +59,19 @@ public class WidgetService {
     }
 
     @Transactional
-    public void delete(Long widgetId) {
-        if (repository.existsById(widgetId)) {
-            repository.deleteById(widgetId);
+    public void delete(@NotNull Long widgetId) {
+        Objects.requireNonNull(widgetId);
+        repository.delete(widgetId);
+    }
+
+    public Page<WidgetEntity> search(@NotNull WidgetSearchRequestDto filter) {
+        Objects.requireNonNull(filter);
+        var pageable = PageRequest.of(filter.getPage() - 1, filter.getSize());
+        if (filter.getxMin() != null && filter.getxMax() != null &&
+                filter.getyMin() != null && filter.getyMax() != null) {
+            return repository.findByFilter(filter, pageable);
+        } else {
+            return repository.findAll(pageable);
         }
     }
 }

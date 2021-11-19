@@ -2,12 +2,11 @@ package org.widget;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.widget.entity.WidgetEntity;
 import org.widget.internal.models.CreateWidgetDto;
 import org.widget.internal.models.WidgetSearchRequestDto;
-import org.widget.repository.WidgetRepository;
+import org.widget.repository.WidgetRepositoryService;
 
 import java.time.LocalDateTime;
 import java.util.Iterator;
@@ -16,7 +15,7 @@ import java.util.Iterator;
 public class EntityCreator {
 
     @Autowired
-    private WidgetRepository repository;
+    private WidgetRepositoryService repository;
 
     private CreateWidgetDto dto;
     private WidgetSearchRequestDto searchDto;
@@ -46,10 +45,20 @@ public class EntityCreator {
         return this.searchDto;
     }
 
+    public WidgetEntity getNewTestEntity() {
+        return new WidgetEntity()
+                .setWidth(RandomUtils.nextInt(0, Integer.MAX_VALUE))
+                .setHeight(RandomUtils.nextInt(0, Integer.MAX_VALUE))
+                .setLastUpdated(LocalDateTime.now())
+                .setX(RandomUtils.nextInt())
+                .setY(RandomUtils.nextInt())
+                .setZ(RandomUtils.nextInt());
+    }
+
     public WidgetEntity getTestEntity() {
-        var entity = findFirst(repository);
-        if (entity == null) {
-            entity = repository.save(new WidgetEntity()
+        var widget = findFirst(repository);
+        if (widget == null) {
+            widget = repository.save(new WidgetEntity()
                     .setWidth(RandomUtils.nextInt(0, Integer.MAX_VALUE))
                     .setHeight(RandomUtils.nextInt(0, Integer.MAX_VALUE))
                     .setLastUpdated(LocalDateTime.now())
@@ -58,11 +67,11 @@ public class EntityCreator {
                     .setZ(RandomUtils.nextInt()));
         }
 
-        return entity;
+        return widget;
     }
 
-    private static <T> T findFirst(CrudRepository<T, Long> repository) {
-        Iterator<T> iterator = repository.findAll().iterator();
+    private static WidgetEntity findFirst(WidgetRepositoryService repository) {
+        Iterator<WidgetEntity> iterator = repository.findAll().iterator();
         return iterator.hasNext() ? iterator.next() : null;
     }
 }

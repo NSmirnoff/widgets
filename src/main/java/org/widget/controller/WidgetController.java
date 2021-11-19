@@ -11,7 +11,6 @@ import org.widget.internal.models.WidgetDto;
 import org.widget.internal.models.WidgetSearchRequestDto;
 import org.widget.internal.models.WidgetSearchResponseDto;
 import org.widget.mapper.WidgetMapper;
-import org.widget.service.WidgetSearchService;
 import org.widget.service.WidgetService;
 
 import javax.validation.constraints.NotNull;
@@ -21,7 +20,6 @@ import javax.validation.constraints.NotNull;
 public class WidgetController implements InternalWidgetApiDelegate {
 
     private final WidgetService service;
-    private final WidgetSearchService searchService;
     private final WidgetMapper mapper;
 
     @Override
@@ -53,25 +51,29 @@ public class WidgetController implements InternalWidgetApiDelegate {
     }
 
     /**
-     * Search widgets in area (xMin;yMin) - (xMax;yMax)
+     * Search widgets in area (xMin;yMin) - (xMax;yMax) or without it
      * @param filter - xMin, xMax, yMin, yMax, page and size of page
      * @return Custom page dto with widgets sort by Z
      */
     @Override
     public ResponseEntity<WidgetSearchResponseDto> listWidgets(@NotNull WidgetSearchRequestDto filter) {
-        if (filter.getxMin().equals(filter.getxMax()) || filter.getyMin().equals(filter.getyMax())) {
-            throw new BadRequestException("Width or height of searching window is 0");
+        filter = filter != null ? filter : new WidgetSearchRequestDto();
+        if (filter.getxMin() != null && filter.getxMax() != null &&
+                filter.getyMin() != null && filter.getyMax() != null) {
+            if (filter.getxMin().equals(filter.getxMax()) || filter.getyMin().equals(filter.getyMax())) {
+                throw new BadRequestException("Width or height of searching window is 0");
+            }
+
+            if (filter.getxMin() > filter.getxMax()) {
+                throw new BadRequestException("X0 more than X1");
+            }
+
+            if (filter.getyMin() > filter.getyMax()) {
+                throw new BadRequestException("Y0 more than Y1");
+            }
         }
 
-        if (filter.getxMin() > filter.getxMax()) {
-            throw new BadRequestException("X0 more than X1");
-        }
-
-        if (filter.getyMin() > filter.getyMax()) {
-            throw new BadRequestException("Y0 more than Y1");
-        }
-
-        var page = searchService.search(filter);
+        var page = service.search(filter);
         return ResponseEntity.ok(mapper.toDto(page));
     }
 }

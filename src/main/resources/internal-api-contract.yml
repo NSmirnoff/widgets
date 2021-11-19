@@ -4,7 +4,7 @@ info:
   contact:
     name: Nikolay Smirnov
     email: smirnovsg15@gmail.com
-  version: 0.0.1-SNAPSHOT
+  version: 0.0.2-SNAPSHOT
 
 tags:
   - name: InternalWidget
@@ -31,6 +31,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WidgetDto'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
 
   /api/widgets/{widgetId}:
     get:
@@ -53,6 +59,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WidgetDto'
+        "404":
+          description: Required entity not found
     put:
       summary: Update widget by id
       operationId: updateWidget
@@ -78,6 +86,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WidgetDto'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        "404":
+          description: Required entity not found
     delete:
       summary: Delete widget by id
       operationId: deleteWidget
@@ -95,7 +111,7 @@ paths:
         "204":
           description: NO CONTENT
 
-  /api/widgets/list:
+  /api/widgets/page:
     post:
       summary: Get page with widgets by filter
       operationId: listWidgets
@@ -113,10 +129,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WidgetSearchResponseDto'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
 
 components:
-
   schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Invalid request"
+      required:
+        - message
+
     AbstractPageableRequestDto:
       type: object
       description: Структура запроса для журнала с пагинацией
@@ -185,7 +215,6 @@ components:
       required:
         - x
         - y
-        - z
         - width
         - height
 
@@ -223,11 +252,6 @@ components:
             yMax:
               type: integer
               example: 15
-      required:
-        - xMin
-        - xMax
-        - yMin
-        - yMax
 
     WidgetSearchResponseDto:
       allOf:

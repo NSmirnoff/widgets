@@ -2,20 +2,23 @@ package org.widget.service;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.widget.EntityCreator;
 import org.widget.entity.WidgetEntity;
-import org.widget.exception.BadRequestException;
 import org.widget.exception.RequiredEntityNotFoundException;
-import org.widget.repository.WidgetRepository;
+import org.widget.internal.models.WidgetSearchRequestDto;
+import org.widget.repository.WidgetRepositoryService;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles(profiles = "memory")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WidgetServiceTest {
 
@@ -26,7 +29,7 @@ class WidgetServiceTest {
     private EntityCreator entityCreator;
 
     @MockBean
-    private WidgetRepository repository;
+    private WidgetRepositoryService repository;
 
     @Test
     void findById() {
@@ -50,24 +53,16 @@ class WidgetServiceTest {
     @Test
     void create() {
         var dto = entityCreator.getTestDto();
-        Mockito.when(repository.existsByZ(dto.getZ())).thenReturn(false);
-        assertDoesNotThrow(() -> widgetService.create(dto));
-    }
 
-    @Test
-    void createWithExistsZ() {
-        var dto = entityCreator.getTestDto();
-        Mockito.when(repository.existsByZ(dto.getZ())).thenReturn(true);
-        assertThrows(BadRequestException.class, () -> widgetService.create(dto));
-    }
+        Mockito.when(repository.save(Mockito.any(WidgetEntity.class))).then(AdditionalAnswers.returnsFirstArg());
 
-    @Test
-    void createNullZ() {
-        var dto = entityCreator.getTestDto();
-        dto.setZ(null);
+        var widget = widgetService.create(dto);
 
-        assertThrows(NullPointerException.class, () -> widgetService.create(dto));
-        dto.setZ(RandomUtils.nextInt());
+        assertEquals(dto.getX(), widget.getX());
+        assertEquals(dto.getY(), widget.getY());
+        assertEquals(dto.getZ(), widget.getZ());
+        assertEquals(dto.getWidth(), widget.getWidth());
+        assertEquals(dto.getHeight(), widget.getHeight());
     }
 
     @Test
@@ -75,25 +70,16 @@ class WidgetServiceTest {
         var id = RandomUtils.nextLong();
         var dto = entityCreator.getTestDto();
 
-        Mockito.when(repository.existsByZAndIdNot(dto.getZ(), id)).thenReturn(false);
-        Mockito.when(repository.findById(id)).thenReturn(Optional.of(new WidgetEntity()));
+        Mockito.when(repository.findById(id)).thenReturn(Optional.of(new WidgetEntity().setId(id)));
+        Mockito.when(repository.save(Mockito.any(WidgetEntity.class))).then(AdditionalAnswers.returnsFirstArg());
 
-        assertDoesNotThrow(() -> widgetService.update(id, dto));
-    }
+        var widget = widgetService.update(id, dto);
 
-    @Test
-    void updateEntity() {
-        var dto = entityCreator.getTestDto();
-        var entity = new WidgetEntity();
-
-        Mockito.when(repository.save(entity)).thenReturn(entity);
-        entity = widgetService.updateEntity(dto, entity);
-
-        assertEquals(dto.getX(), entity.getX());
-        assertEquals(dto.getY(), entity.getY());
-        assertEquals(dto.getZ(), entity.getZ());
-        assertEquals(dto.getWidth(), entity.getWidth());
-        assertEquals(dto.getHeight(), entity.getHeight());
+        assertEquals(dto.getX(), widget.getX());
+        assertEquals(dto.getY(), widget.getY());
+        assertEquals(dto.getZ(), widget.getZ());
+        assertEquals(dto.getWidth(), widget.getWidth());
+        assertEquals(dto.getHeight(), widget.getHeight());
     }
 
     @Test
@@ -101,30 +87,9 @@ class WidgetServiceTest {
         var id = RandomUtils.nextLong();
         var dto = entityCreator.getTestDto();
 
-        Mockito.when(repository.existsByZAndIdNot(dto.getZ(), id)).thenReturn(false);
         Mockito.when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(RequiredEntityNotFoundException.class, () -> widgetService.update(id, dto));
-    }
-
-    @Test
-    void updateWithExistsZ() {
-        var id = RandomUtils.nextLong();
-        var dto = entityCreator.getTestDto();
-
-        Mockito.when(repository.existsByZAndIdNot(dto.getZ(), id)).thenReturn(true);
-        assertThrows(BadRequestException.class, () -> widgetService.update(id, dto));
-    }
-
-    @Test
-    void updateNullZ() {
-        var id = RandomUtils.nextLong();
-
-        var dto = entityCreator.getTestDto();
-        dto.setZ(null);
-
-        assertThrows(NullPointerException.class, () -> widgetService.update(id, dto));
-        dto.setZ(RandomUtils.nextInt());
     }
 
     @Test
@@ -134,13 +99,25 @@ class WidgetServiceTest {
     }
 
     @Test
+    void deleteNull() {
+        assertThrows(NullPointerException.class, () -> widgetService.delete(null));
+    }
+
+    @Test
     void delete() {
         var id = RandomUtils.nextLong();
-
-        Mockito.when(repository.existsById(id)).thenReturn(true);
         assertDoesNotThrow(() -> widgetService.delete(id));
+    }
 
-        Mockito.when(repository.existsById(id)).thenReturn(false);
-        assertDoesNotThrow(() -> widgetService.delete(id));
+    @Test
+    void search() {
+        var filter = new WidgetSearchRequestDto();
+        assertDoesNotThrow(() -> widgetService.search(filter));
+    }
+
+    @Test
+    void searchFilter() {
+        var filter = entityCreator.getFilter();
+        assertDoesNotThrow(() -> widgetService.search(filter));
     }
 }

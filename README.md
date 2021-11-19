@@ -3,7 +3,7 @@
 I really don't know what to say here.
 
 - Clean and Compile before Run
-- Profiles: h2profile, derbyprofile you can pass in -Dspring.profiles.active=PROFILE or in application.properties
+- Profiles: memory, database you can pass in -Dspring.profiles.active=PROFILE or in application.properties
 - Schema from schema.sql, data from data.sql
 - API docs you can find in resources/internal-api-contract.yml (used for generate controllers and dtos)
 - Some tests...
@@ -14,4 +14,4 @@ I really don't know what to say here.
 - Lombok
 - Mapstruct
 - OpenAPI generator
-- H2 or Derby databases
+- H2 database

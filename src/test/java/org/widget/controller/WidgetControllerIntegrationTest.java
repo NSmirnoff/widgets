@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.widget.EntityCreator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles(profiles = "memory")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WidgetControllerIntegrationTest {
 
@@ -20,44 +22,44 @@ class WidgetControllerIntegrationTest {
     @Test
     void createWidget() {
         var dto = entityCreator.getTestDto();
-        var entityDto = controller.createWidget(dto);
+        var widgetDto = controller.createWidget(dto);
 
-        assertNotNull(entityDto.getBody());
-        assertEquals(dto.getX(), entityDto.getBody().getX());
-        assertEquals(dto.getY(), entityDto.getBody().getY());
-        assertEquals(dto.getZ(), entityDto.getBody().getZ());
-        assertEquals(dto.getWidth(), entityDto.getBody().getWidth());
-        assertEquals(dto.getHeight(), entityDto.getBody().getHeight());
+        assertNotNull(widgetDto.getBody());
+        assertEquals(dto.getX(), widgetDto.getBody().getX());
+        assertEquals(dto.getY(), widgetDto.getBody().getY());
+        assertEquals(dto.getZ(), widgetDto.getBody().getZ());
+        assertEquals(dto.getWidth(), widgetDto.getBody().getWidth());
+        assertEquals(dto.getHeight(), widgetDto.getBody().getHeight());
     }
 
     @Test
     void getWidget() {
-        var entity = entityCreator.getTestEntity();
-        var entityDto = controller.getWidget(entity.getId());
+        var widget = entityCreator.getTestEntity();
+        var widgetDto = controller.getWidget(widget.getId());
 
-        assertNotNull(entityDto.getBody());
-        assertEquals(entity.getId(), entityDto.getBody().getId());
+        assertNotNull(widgetDto.getBody());
+        assertEquals(widget.getId(), widgetDto.getBody().getId());
     }
 
     @Test
     void updateWidget() {
         var dto = entityCreator.getTestDto();
-        var entity = entityCreator.getTestEntity();
+        var widget = entityCreator.getTestEntity();
 
-        var entityDto = controller.updateWidget(entity.getId(), dto);
+        var widgetDto = controller.updateWidget(widget.getId(), dto);
 
-        assertNotNull(entityDto.getBody());
-        assertEquals(dto.getX(), entityDto.getBody().getX());
-        assertEquals(dto.getY(), entityDto.getBody().getY());
-        assertEquals(dto.getZ(), entityDto.getBody().getZ());
-        assertEquals(dto.getWidth(), entityDto.getBody().getWidth());
-        assertEquals(dto.getHeight(), entityDto.getBody().getHeight());
+        assertNotNull(widgetDto.getBody());
+        assertEquals(dto.getX(), widgetDto.getBody().getX());
+        assertEquals(dto.getY(), widgetDto.getBody().getY());
+        assertEquals(dto.getZ(), widgetDto.getBody().getZ());
+        assertEquals(dto.getWidth(), widgetDto.getBody().getWidth());
+        assertEquals(dto.getHeight(), widgetDto.getBody().getHeight());
     }
 
     @Test
     void deleteWidget() {
-        var entity = entityCreator.getTestEntity();
-        var id = entity.getId();
+        var widget = entityCreator.getTestEntity();
+        var id = widget.getId();
         controller.deleteWidget(id);
 
         assertEquals(controller.getWidget(id).getStatusCode(), HttpStatus.NOT_FOUND);
@@ -65,8 +67,8 @@ class WidgetControllerIntegrationTest {
 
     @Test
     void listWidgets() {
-        var searchDto = entityCreator.getFilter();
-        var response = controller.listWidgets(searchDto);
+        var filter = entityCreator.getFilter();
+        var response = controller.listWidgets(filter);
 
         assertNotNull(response.getBody());
         var page = response.getBody();

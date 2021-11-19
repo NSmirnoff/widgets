@@ -6,15 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.test.context.ActiveProfiles;
 import org.widget.EntityCreator;
 import org.widget.entity.WidgetEntity;
 import org.widget.exception.BadRequestException;
-import org.widget.service.WidgetSearchService;
+import org.widget.service.WidgetService;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ActiveProfiles(profiles = "memory")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WidgetControllerTest {
 
@@ -25,7 +27,7 @@ public class WidgetControllerTest {
     private EntityCreator entityCreator;
 
     @MockBean
-    private WidgetSearchService service;
+    private WidgetService service;
 
     @Test
     void equalXMinAndMax() {
